@@ -464,39 +464,39 @@
                             <circle cx="300" cy="290" r="8" fill="#8b6914" stroke="white" stroke-width="1"/>
                         </svg>
                         
-                        <div class="position pitcher" data-position="pitcher" onclick="removePlayer(event)">
+                        <div class="position pitcher" data-position="pitcher">
                             <div class="position-label">P</div>
                             <div class="position-player empty">-</div>
                         </div>
-                        <div class="position catcher" data-position="catcher" onclick="removePlayer(event)">
+                        <div class="position catcher" data-position="catcher">
                             <div class="position-label">C</div>
                             <div class="position-player empty">-</div>
                         </div>
-                        <div class="position first-base" data-position="first-base" onclick="removePlayer(event)">
+                        <div class="position first-base" data-position="first-base">
                             <div class="position-label">1B</div>
                             <div class="position-player empty">-</div>
                         </div>
-                        <div class="position second-base" data-position="second-base" onclick="removePlayer(event)">
+                        <div class="position second-base" data-position="second-base">
                             <div class="position-label">2B</div>
                             <div class="position-player empty">-</div>
                         </div>
-                        <div class="position third-base" data-position="third-base" onclick="removePlayer(event)">
+                        <div class="position third-base" data-position="third-base">
                             <div class="position-label">3B</div>
                             <div class="position-player empty">-</div>
                         </div>
-                        <div class="position shortstop" data-position="shortstop" onclick="removePlayer(event)">
+                        <div class="position shortstop" data-position="shortstop">
                             <div class="position-label">SS</div>
                             <div class="position-player empty">-</div>
                         </div>
-                        <div class="position left-field" data-position="left-field" onclick="removePlayer(event)">
+                        <div class="position left-field" data-position="left-field">
                             <div class="position-label">LF</div>
                             <div class="position-player empty">-</div>
                         </div>
-                        <div class="position center-field" data-position="center-field" onclick="removePlayer(event)">
+                        <div class="position center-field" data-position="center-field">
                             <div class="position-label">CF</div>
                             <div class="position-player empty">-</div>
                         </div>
-                        <div class="position right-field" data-position="right-field" onclick="removePlayer(event)">
+                        <div class="position right-field" data-position="right-field">
                             <div class="position-label">RF</div>
                             <div class="position-player empty">-</div>
                         </div>
@@ -682,6 +682,9 @@
                     e.stopPropagation();
                     if (selectedPlayer) {
                         placePlayer(pos);
+                    } else {
+                        // If no player selected but position has a player, remove them
+                        removePlayer.call(pos, e);
                     }
                 };
             });
@@ -710,10 +713,8 @@
         }
 
         function removePlayer(event) {
-            if (!event.target.closest('.position-player')) return;
-            
             const currentInning = parseInt(document.getElementById('currentInning').textContent);
-            const posElement = event.target.closest('.position');
+            const posElement = event.target.closest('.position') || this;
             const position = posElement.getAttribute('data-position');
             
             const player = gameData.lineups[currentInning][position];
@@ -723,6 +724,13 @@
                 playerDiv.textContent = '-';
                 playerDiv.classList.add('empty');
                 updatePlayerList(currentInning);
+                updateBenchList(currentInning);
+                
+                // Clear any selection
+                document.querySelectorAll('.position').forEach(pos => {
+                    pos.classList.remove('ready-to-place');
+                });
+                selectedPlayer = null;
             }
         }
 
