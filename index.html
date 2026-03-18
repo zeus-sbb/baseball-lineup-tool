@@ -238,6 +238,12 @@
             transform: scale(1.05);
         }
 
+        .position.ready-to-place {
+            background: rgba(255, 193, 7, 0.3);
+            border-color: rgba(255, 193, 7, 1);
+            cursor: pointer;
+        }
+
         .position-label {
             font-size: 13px;
             font-weight: 700;
@@ -288,7 +294,7 @@
             margin-bottom: 8px;
             border: 2px solid #ddd;
             border-radius: 4px;
-            cursor: grab;
+            cursor: pointer;
             user-select: none;
             transition: all 0.2s;
             font-weight: 600;
@@ -300,9 +306,11 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .player-card.dragging {
-            opacity: 0.5;
-            cursor: grabbing;
+        .player-card.selected {
+            background: #2a5298;
+            color: white;
+            border-color: #1e3c72;
+            box-shadow: 0 4px 8px rgba(42, 82, 152, 0.4);
         }
 
         .export-section {
@@ -519,7 +527,7 @@
             lineups: {}
         };
 
-        let draggedPlayer = null;
+        let selectedPlayer = null;
 
         function initializeSetup() {
             const playerInputs = document.getElementById('playerInputs');
@@ -618,38 +626,47 @@
                     const card = document.createElement('div');
                     card.className = 'player-card';
                     card.textContent = player;
-                    card.draggable = true;
-                    card.ondragstart = (e) => dragStart(e, player, inningNum);
+                    card.onclick = (e) => selectPlayer(e, player, inningNum);
                     playerList.appendChild(card);
                 }
             });
+            
+            // Reset selection highlight
+            document.querySelectorAll('.player-card.selected').forEach(c => c.classList.remove('selected'));
+            selectedPlayer = null;
         }
 
-        function dragStart(e, player, inningNum) {
-            draggedPlayer = { name: player, inning: inningNum };
-            e.dataTransfer.effectAllowed = 'move';
-            e.target.classList.add('dragging');
-        }
-
-        function setupFieldDragDrop() {
+        function selectPlayer(e, player, inningNum) {
+            e.stopPropagation();
+            selectedPlayer = { name: player, inning: inningNum };
+            
+            // Highlight selected player
+            document.querySelectorAll('.player-card').forEach(card => card.classList.remove('selected'));
+            e.currentTarget.classList.add('selected');
+            
+            // Highlight available positions
             document.querySelectorAll('.position').forEach(pos => {
-                pos.ondragover = (e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                };
-                pos.ondrop = (e) => dropPlayer(e, pos);
+                pos.classList.add('ready-to-place');
             });
         }
 
-        function dropPlayer(e, posElement) {
-            e.preventDefault();
-            e.dataTransfer.clearData();
-            
-            if (!draggedPlayer) return;
+        function setupFieldClickToPlace() {
+            document.querySelectorAll('.position').forEach(pos => {
+                pos.onclick = (e) => {
+                    e.stopPropagation();
+                    if (selectedPlayer) {
+                        placePlayer(pos);
+                    }
+                };
+            });
+        }
+
+        function placePlayer(posElement) {
+            if (!selectedPlayer) return;
 
             const position = posElement.getAttribute('data-position');
-            const inning = draggedPlayer.inning;
-            const player = draggedPlayer.name;
+            const inning = selectedPlayer.inning;
+            const player = selectedPlayer.name;
 
             gameData.lineups[inning][position] = player;
             
@@ -657,8 +674,13 @@
             playerDiv.textContent = player;
             playerDiv.classList.remove('empty');
             
+            // Clear highlight
+            document.querySelectorAll('.position').forEach(pos => {
+                pos.classList.remove('ready-to-place');
+            });
+            
             updatePlayerList(inning);
-            draggedPlayer = null;
+            selectedPlayer = null;
         }
 
         function removePlayer(event) {
@@ -778,7 +800,7 @@
         }
 
         initializeSetup();
-        setupFieldDragDrop();
+        setupFieldClickToPlace();
     </script>
 </body>
 </html>
