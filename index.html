@@ -900,9 +900,29 @@ td { text-align: center; }
                     backgroundColor: '#ffffff'
                 });
                 
-                // Open image in new tab for viewing/saving
-                const imageUrl = canvas.toDataURL('image/png');
-                window.open(imageUrl, '_blank');
+                // Convert canvas to blob for sharing
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], `${gameData.teamName}-Lineup.png`, { type: 'image/png' });
+                    
+                    // Use Web Share API if available (mobile)
+                    if (navigator.share) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: gameData.teamName,
+                                text: 'Baseball Lineup'
+                            });
+                        } catch (err) {
+                            if (err.name !== 'AbortError') {
+                                console.error(err);
+                            }
+                        }
+                    } else {
+                        // Fallback: open in new tab
+                        const imageUrl = canvas.toDataURL('image/png');
+                        window.open(imageUrl, '_blank');
+                    }
+                });
             } catch (error) {
                 alert('Error capturing image. Try taking a screenshot instead.');
             } finally {
