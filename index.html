@@ -515,14 +515,15 @@
                 </div>
 
                 <div class="export-section">
-                    <button class="btn-export" onclick="exportToPDF()">📄 Export to PDF (All Innings)</button>
+                    <button class="btn-export" onclick="exportToPDF()">📄 View Lineup</button>
+                    <button class="btn-export" onclick="captureTableImage()" style="background: #17a2b8;">📸 Share as Image</button>
                     <button class="btn-secondary" onclick="resetToSetup()">← Back to Setup</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         let gameData = {
             teamName: '',
@@ -832,6 +833,85 @@ td { text-align: center; }
             document.getElementById('setupScreen').classList.add('active');
             gameData = { teamName: '', coachName: '', innings: 0, players: [], lineups: {} };
             initializeSetup();
+        }
+
+        async function captureTableImage() {
+            // Create a temporary container with the table
+            const positions = [
+                { key: 'pitcher', label: 'Pitcher (P)' },
+                { key: 'catcher', label: 'Catcher (C)' },
+                { key: 'first-base', label: 'First Base (1B)' },
+                { key: 'second-base', label: 'Second Base (2B)' },
+                { key: 'third-base', label: 'Third Base (3B)' },
+                { key: 'shortstop', label: 'Shortstop (SS)' },
+                { key: 'left-field', label: 'Left Field (LF)' },
+                { key: 'center-field', label: 'Center Field (CF)' },
+                { key: 'right-field', label: 'Right Field (RF)' },
+                { key: 'bench', label: 'Bench' }
+            ];
+
+            let tableHtml = `<div style="background: white; padding: 20px; font-family: Arial;">
+                <h3 style="text-align: center; margin: 0 0 5px 0;">${gameData.teamName}</h3>
+                <p style="text-align: center; margin: 0 0 15px 0;">Coach: ${gameData.coachName}</p>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <tr style="background-color: #e0e0e0;">
+                <th style="border: 2px solid #000; padding: 8px; text-align: left; font-weight: bold;">Position</th>`;
+            
+            for (let i = 1; i <= gameData.innings; i++) {
+                tableHtml += `<th style="border: 2px solid #000; padding: 8px; text-align: center; font-weight: bold;">Inn ${i}</th>`;
+            }
+            tableHtml += `</tr>`;
+            
+            positions.forEach(pos => {
+                tableHtml += `<tr><td style="border: 1px solid #000; padding: 8px; font-weight: bold;">${pos.label}</td>`;
+                
+                for (let i = 1; i <= gameData.innings; i++) {
+                    let player = '';
+                    
+                    if (pos.key === 'bench') {
+                        const inning = gameData.lineups[i];
+                        const usedPlayers = new Set(Object.values(inning));
+                        const benchPlayers = gameData.players.filter(p => !usedPlayers.has(p));
+                        player = benchPlayers.length > 0 ? benchPlayers.join(', ') : '-';
+                    } else {
+                        player = gameData.lineups[i][pos.key] || '-';
+                    }
+                    
+                    tableHtml += `<td style="border: 1px solid #000; padding: 8px; text-align: center;">${player}</td>`;
+                }
+                tableHtml += `</tr>`;
+            });
+            
+            tableHtml += `</table></div>`;
+
+            // Create temporary element
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = tableHtml;
+            tempDiv.style.position = 'fixed';
+            tempDiv.style.left = '-9999px';
+            document.body.appendChild(tempDiv);
+
+            try {
+                // Capture as image
+                const canvas = await html2canvas(tempDiv.firstChild, { 
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+                
+                // Download the image
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `${gameData.teamName}-Lineup.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                alert('Error capturing image. Try taking a screenshot instead.');
+            } finally {
+                document.body.removeChild(tempDiv);
+            }
         }
 
         initializeSetup();
