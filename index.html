@@ -509,6 +509,11 @@
                     </div>
                 </div>
 
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 10px;">Bench Players (Inning <span id="benchInning">1</span>)</h3>
+                    <div id="benchList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                </div>
+
                 <div class="export-section">
                     <button class="btn-export" onclick="exportToPDF()">📄 Export to PDF (All Innings)</button>
                     <button class="btn-secondary" onclick="resetToSetup()">← Back to Setup</button>
@@ -610,9 +615,30 @@
             });
 
             updatePlayerList(inningNum);
+            updateBenchList(inningNum);
             document.getElementById('currentInning').textContent = inningNum;
+            document.getElementById('benchInning').textContent = inningNum;
             document.getElementById('prevBtn').disabled = inningNum === 1;
             document.getElementById('nextBtn').disabled = inningNum === gameData.innings;
+        }
+
+        function updateBenchList(inningNum) {
+            const inning = gameData.lineups[inningNum];
+            const usedPlayers = new Set(Object.values(inning));
+            const benchPlayers = gameData.players.filter(p => !usedPlayers.has(p));
+            const benchList = document.getElementById('benchList');
+            
+            benchList.innerHTML = '';
+            if (benchPlayers.length > 0) {
+                benchPlayers.forEach(player => {
+                    const badge = document.createElement('div');
+                    badge.style.cssText = 'background: #ddd; padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;';
+                    badge.textContent = player;
+                    benchList.appendChild(badge);
+                });
+            } else {
+                benchList.innerHTML = '<p style="color: #999; font-style: italic;">All players on field</p>';
+            }
         }
 
         function updatePlayerList(inningNum) {
