@@ -744,8 +744,11 @@
         function nextInning() {
             const currentInning = parseInt(document.getElementById('currentInning').textContent);
             if (currentInning < gameData.innings) {
-                const prevInning = gameData.lineups[currentInning];
-                gameData.lineups[currentInning + 1] = { ...prevInning };
+                // Only copy previous inning if next inning is empty
+                if (Object.keys(gameData.lineups[currentInning + 1]).length === 0) {
+                    const prevInning = gameData.lineups[currentInning];
+                    gameData.lineups[currentInning + 1] = { ...prevInning };
+                }
                 loadInning(currentInning + 1);
             }
         }
