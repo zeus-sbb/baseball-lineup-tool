@@ -821,15 +821,10 @@ td { text-align: center; }
 </body>
 </html>`;
 
-            // Print-friendly approach - open in new window and let user print to PDF
-            const printWindow = window.open('', '', 'height=600,width=900');
-            printWindow.document.write(allContent);
-            printWindow.document.close();
-            
-            // Auto-trigger print dialog
-            setTimeout(() => {
-                printWindow.print();
-            }, 250);
+            // Open in new tab for viewing/sharing
+            const newTab = window.open();
+            newTab.document.write(allContent);
+            newTab.document.close();
         }
 
         function resetToSetup() {
