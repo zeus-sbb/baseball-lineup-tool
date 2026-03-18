@@ -257,16 +257,16 @@
             font-size: 11px;
         }
 
-        /* Position locations - baseball diamond layout */
-        .pitcher { top: 42%; left: 48%; }
-        .catcher { top: 82%; left: 48%; }
-        .first-base { top: 50%; left: 72%; }
-        .second-base { top: 15%; left: 50%; }
-        .third-base { top: 50%; left: 22%; }
+        /* Position locations - on the baseball diamond */
+        .pitcher { top: 46%; left: 47%; }
+        .catcher { top: 68%; left: 47%; }
+        .first-base { top: 42%; left: 72%; }
+        .second-base { top: 18%; left: 50%; }
+        .third-base { top: 42%; left: 22%; }
         .shortstop { top: 38%; left: 40%; }
-        .left-field { top: 10%; left: 12%; }
-        .center-field { top: 8%; left: 50%; }
-        .right-field { top: 10%; left: 85%; }
+        .left-field { top: 20%; left: 8%; }
+        .center-field { top: 12%; left: 50%; }
+        .right-field { top: 20%; left: 88%; }
 
         .player-list {
             min-width: 280px;
@@ -436,6 +436,26 @@
 
                 <div class="field-container">
                     <div class="baseball-field" id="field">
+                        <svg style="position: absolute; width: 100%; height: 100%; z-index: 1;" viewBox="0 0 600 600">
+                            <!-- Outfield grass -->
+                            <ellipse cx="300" cy="300" rx="280" ry="280" fill="#1a4d0a"/>
+                            
+                            <!-- Infield dirt -->
+                            <polygon points="300,120 450,270 300,420 150,270" fill="#8b6914"/>
+                            
+                            <!-- Baselines -->
+                            <line x1="300" y1="420" x2="450" y2="270" stroke="white" stroke-width="2"/>
+                            <line x1="450" y1="270" x2="300" y2="120" stroke="white" stroke-width="2"/>
+                            <line x1="300" y1="120" x2="150" y2="270" stroke="white" stroke-width="2"/>
+                            <line x1="150" y1="270" x2="300" y2="420" stroke="white" stroke-width="2"/>
+                            
+                            <!-- Home plate -->
+                            <polygon points="300,420 310,440 290,440" fill="white"/>
+                            
+                            <!-- Pitcher's mound -->
+                            <circle cx="300" cy="290" r="8" fill="#8b6914" stroke="white" stroke-width="1"/>
+                        </svg>
+                        
                         <div class="position pitcher" data-position="pitcher" onclick="removePlayer(event)">
                             <div class="position-label">P</div>
                             <div class="position-player empty">-</div>
