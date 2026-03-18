@@ -900,13 +900,9 @@ td { text-align: center; }
                     backgroundColor: '#ffffff'
                 });
                 
-                // Download the image
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = `${gameData.teamName}-Lineup.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                // Open image in new tab for viewing/saving
+                const imageUrl = canvas.toDataURL('image/png');
+                window.open(imageUrl, '_blank');
             } catch (error) {
                 alert('Error capturing image. Try taking a screenshot instead.');
             } finally {
