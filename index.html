@@ -722,72 +722,49 @@
                 filename: `${gameData.teamName}-Lineup.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+                jsPDF: { orientation: 'landscape', unit: 'mm', format: 'a4' }
             };
 
-            let allContent = `<div style="font-family: Arial; padding: 20px;">`;
+            const positions = [
+                { key: 'pitcher', label: 'Pitcher (P)' },
+                { key: 'catcher', label: 'Catcher (C)' },
+                { key: 'first-base', label: 'First Base (1B)' },
+                { key: 'second-base', label: 'Second Base (2B)' },
+                { key: 'third-base', label: 'Third Base (3B)' },
+                { key: 'shortstop', label: 'Shortstop (SS)' },
+                { key: 'left-field', label: 'Left Field (LF)' },
+                { key: 'center-field', label: 'Center Field (CF)' },
+                { key: 'right-field', label: 'Right Field (RF)' }
+            ];
 
-            for (let i = 1; i <= gameData.innings; i++) {
-                const inning = gameData.lineups[i];
-                const usedPlayers = new Set(Object.values(inning));
-                const benchPlayers = gameData.players.filter(p => !usedPlayers.has(p));
+            let allContent = `<div style="font-family: Arial; padding: 15px;">
+                <h2 style="text-align: center; margin-bottom: 5px;">${gameData.teamName}</h2>
+                <p style="text-align: center; margin-bottom: 15px; font-size: 14px;">Coach: ${gameData.coachName}</p>
                 
-                allContent += `
-                    <div style="page-break-after: always; margin-bottom: 40px;">
-                        <h2 style="text-align: center; margin-bottom: 10px;">${gameData.teamName}</h2>
-                        <p style="text-align: center; margin-bottom: 20px;">Coach: ${gameData.coachName}</p>
-                        <p style="text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px;">Inning ${i}</p>
-                        
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                            <tr style="background-color: #f0f0f0;">
-                                <th style="border: 1px solid #000; padding: 10px; text-align: left;">Position</th>
-                                <th style="border: 1px solid #000; padding: 10px; text-align: left;">Player</th>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 10px;">Pitcher (P)</td>
-                                <td style="border: 1px solid #000; padding: 10px; font-weight: bold;">${inning['pitcher'] || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 10px;">Catcher (C)</td>
-                                <td style="border: 1px solid #000; padding: 10px; font-weight: bold;">${inning['catcher'] || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 10px;">First Base (1B)</td>
-                                <td style="border: 1px solid #000; padding: 10px; font-weight: bold;">${inning['first-base'] || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 10px;">Second Base (2B)</td>
-                                <td style="border: 1px solid #000; padding: 10px; font-weight: bold;">${inning['second-base'] || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 10px;">Third Base (3B)</td>
-                                <td style="border: 1px solid #000; padding: 10px; font-weight: bold;">${inning['third-base'] || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 10px;">Shortstop (SS)</td>
-                                <td style="border: 1px solid #000; padding: 10px; font-weight: bold;">${inning['shortstop'] || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 10px;">Left Field (LF)</td>
-                                <td style="border: 1px solid #000; padding: 10px; font-weight: bold;">${inning['left-field'] || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 10px;">Center Field (CF)</td>
-                                <td style="border: 1px solid #000; padding: 10px; font-weight: bold;">${inning['center-field'] || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 10px;">Right Field (RF)</td>
-                                <td style="border: 1px solid #000; padding: 10px; font-weight: bold;">${inning['right-field'] || '-'}</td>
-                            </tr>
-                        </table>
-
-                        <h3 style="margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px;">Bench Players</h3>
-                        <p style="font-weight: bold;">${benchPlayers.length > 0 ? benchPlayers.join(', ') : 'None'}</p>
-                    </div>
-                `;
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background-color: #f0f0f0;">
+                        <th style="border: 1px solid #000; padding: 8px; text-align: left; font-weight: bold;">Position</th>`;
+            
+            // Add inning headers
+            for (let i = 1; i <= gameData.innings; i++) {
+                allContent += `<th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">Inning ${i}</th>`;
             }
-
-            allContent += `</div>`;
+            
+            allContent += `</tr>`;
+            
+            // Add position rows
+            positions.forEach(pos => {
+                allContent += `<tr><td style="border: 1px solid #000; padding: 8px; font-weight: bold;">${pos.label}</td>`;
+                
+                for (let i = 1; i <= gameData.innings; i++) {
+                    const player = gameData.lineups[i][pos.key] || '-';
+                    allContent += `<td style="border: 1px solid #000; padding: 8px; text-align: center;">${player}</td>`;
+                }
+                
+                allContent += `</tr>`;
+            });
+            
+            allContent += `</table></div>`;
 
             html2pdf().set(opt).from(allContent).save();
         }
