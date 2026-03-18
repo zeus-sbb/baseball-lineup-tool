@@ -345,6 +345,15 @@
             }
         }
 
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+
         @media print {
             body {
                 background: white;
@@ -362,6 +371,10 @@
 
             .field-screen {
                 gap: 40px;
+            }
+
+            .footer {
+                display: none;
             }
         }
     </style>
@@ -472,6 +485,10 @@
                     <button class="btn-secondary" onclick="resetToSetup()">← Back to Setup</button>
                 </div>
             </div>
+        </div>
+
+        <div class="footer">
+            v1.1 | Baseball Lineup Tool
         </div>
     </div>
 
